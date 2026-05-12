@@ -1,0 +1,76 @@
+.seccion5 {
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  transition: background-image 1s ease-in-out;
+  content: center;
+  top: 0px;
+  width: 100%;
+  height: 100vh;
+  left: 0px;
+}
+
+/* Capa oscura para legibilidad */
+.overlayGlobal {
+  min-height: 100vh;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.overlayGlobal span {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.construye5 {
+  color: rgb(247, 147, 30);
+}
+
+.descripcion {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  color: #eee;
+}
+
+/* GRID DE TARJETAS */
+.grid {
+  margin-top: 60px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+}
+
+/* TARJETA */
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  padding: 30px;
+  text-align: left;
+  font-size: 1rem;
+  color: #222;
+  line-height: 1.5;
+}
+
+.textoDinamico {
+  margin: 30px auto 0; /* 👈 centra horizontalmente */
+  font-size: 1.1rem;
+  color: #fff;
+  max-width: 700px;
+  line-height: 1.6;
+  animation: fadeUp 0.8s ease;
+  text-align: center; /* opcional, pero recomendado */
+}
+
+/* Animación suave cuando cambia */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,63 @@
+.seccion7 {
+  /* padding-top: 200px;  dentro del div se hace el espacio */
+  display: flex;
+      padding: 4rem 2rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px; /* en vez de height */
+  text-align: center;
+  /* margin-top: 1000px;  fuera del div se hace el espacio */
+
+  background-color: #e8dede;
+
+}
+
+.seccion7 .imgPruebacss7 img {
+    width: 265px;   /* ancho deseado */
+    height: 265px;  /* alto deseado */
+    object-fit: contain; /* mantiene proporción, no corta */
+    margin-left: 10px;
+    border-radius: 10px;
+    background-color: #ffffff; /* opcional, relleno si la imagen no llena el cuadro */
+    border-radius: 60px;
+}
+
+.seccion7 span{
+    
+    color: rgb(12, 12, 89);
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 3rem;
+    font-family: Sora, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+}
+.seccion7 .Parrafo1{
+    box-sizing: border-box;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: rgb(12, 12, 89);
+    margin: 0px;
+    font-family: Sora, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    flex-direction: row;
+    display: flex;
+    unicode-bidi: isolate;
+    text-align: 10px;
+    gap: 100px;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* seccion_7.module.css */
+.seccion7 .Parrafo1 .numero {
+  font-size: 6rem;
+  font-weight: 900;
+}
+
+.texto {
+  font-size: 1.3rem; /* texto más chico */
+  font-weight: 600;
+}

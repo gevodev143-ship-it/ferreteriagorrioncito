@@ -1,0 +1,136 @@
+/* ------------------------------------ */
+/* Reset básico                         */
+/* ------------------------------------ */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* ------------------------------------ */  
+/* Contenedor principal                 */
+/* ------------------------------------ */
+.main {
+  padding: 0;
+
+  z-index: 100000;
+}
+
+/* ------------------------------------ */
+/* Carrusel base                        */
+/* ------------------------------------ */
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 538px;
+  overflow: hidden;
+}
+
+/* Imagen del carrusel */
+.carouselImage {
+  width: 100%;
+  height: 100%;
+  object-fit: fill; /* muestra toda la imagen aunque se deforme */
+  display: block;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at top center, rgba(70, 95, 219, 0.16), transparent 32%),
+    linear-gradient(180deg, #eef3ff 0%, #f9fbff 100%);
+  color: #5b6788;
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
+  font-weight: 800;
+  text-align: center;
+}
+
+.emptyState {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ------------------------------------ */
+/* Tablet                               */
+/* ------------------------------------ */
+@media (min-width: 768px) and (max-width: 1023px) {
+
+  .carousel {
+    height: 38vw;
+  }
+
+}
+
+/* ------------------------------------ */
+/* PC / Escritorio                      */
+/* ------------------------------------ */
+@media (min-width: 1024px) {
+
+  .carousel {
+    height: calc(100vw / 2.35);
+  }
+
+}
+
+/* ------------------------------------ */
+/* Flechas                              */
+/* ------------------------------------ */
+
+.arrowLeft,
+.arrowRight {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 22px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.arrowLeft {
+  left: 20px;
+}
+
+.arrowRight {
+  right: 20px;
+}
+
+/* ------------------------------------ */
+/* Indicadores                          */
+/* ------------------------------------ */
+
+.indicators {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dot {
+  width: 40px;
+  height: 5px;
+  background: rgba(255,255,255,0.4);
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+
+.active {
+  background: white;
+}

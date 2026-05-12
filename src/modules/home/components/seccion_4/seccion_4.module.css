@@ -1,0 +1,316 @@
+/* ── Sección ─────────────────────────────────────────── */
+.seccion {
+  width: 100%;
+  padding: 0 24px 36px;
+  background: #ffffff;
+  font-family: Sora, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.tituloPrincipal {
+  margin: 0 0 18px;
+  text-align: center;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  font-weight: 800;
+  color: #2f3cc9;
+}
+
+/* ── Slider ──────────────────────────────────────────── */
+.sliderWrap {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 14px;
+}
+
+.tarjetas {
+  display: grid;
+  grid-template-columns: repeat(3, 260px);
+  justify-content: center;
+  gap: 25px;
+}
+
+.flecha {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: #efefef;
+  color: #111111;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.flecha:disabled {
+  opacity: 0.5;
+}
+
+.flechaIzquierda {
+  justify-self: end;
+}
+
+.flechaDerecha {
+  justify-self: start;
+}
+
+/* ── Card ────────────────────────────────────────────── */
+.card {
+  border-radius: 18px;
+  background: linear-gradient(180deg, #efe9ea 0%, #ece3e4 100%);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+  padding: 16px 18px 20px;
+  animation: entradaProducto 0.45s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.18);
+}
+
+.imagenWrap {
+  border: 3px solid #c9c9c9;
+  background: #ffffff;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.imagen {
+  width: 70%;
+  height: 170px;
+  display: block;
+  object-fit: contain;
+  animation: zoomProducto 0.45s ease;
+}
+
+.placeholder {
+  width: 100%;
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eef2fb 0%, #fbfcff 100%);
+  color: #77819b;
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cardBody {
+  padding-top: 6px;
+}
+
+.cardTitulo {
+  margin: 0 0 4px;
+  color: #4f4f4f;
+  font-size: 1.05rem;
+  line-height: 1.15;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.cardCategoria {
+  margin: 0 0 2px;
+  color: #7a7a7a;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.cardMarca {
+  margin: 0 0 6px;
+  color: #243585;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+/* ── Botón Lo quiero ─────────────────────────────────── */
+.loQuieroButton {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid rgb(228, 154, 57);
+  border-radius: 9px;
+  background: white;
+  color: #f56e00;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 10px 16px;
+  cursor: pointer;
+  gap: 6px;
+}
+
+/* ── Vacío ───────────────────────────────────────────── */
+.vacio {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: #f6f7fb;
+  color: #6e7791;
+  font-weight: 700;
+}
+
+/* ── Modal overlay ───────────────────────────────────── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 20px;
+  z-index: 1200;
+}
+
+/* ✅ Renombrado de .modal → .modalCompra para coincidir con el TSX */
+.modalCompra {
+  width: min(100%, 380px);
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 24px 20px 20px;
+  box-shadow: 0 26px 46px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.modalTitulo {
+  margin: 0;
+  color: #111111;
+  font-size: 20px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.modalTexto {
+  margin: 8px 0 18px;
+  color: #8a8a8a;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ✅ Botones completos copiados de seccion_3 */
+.modalBotonNaranja,
+.modalBotonVerde {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: none;
+  border-radius: 14px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+.modalBotonNaranja {
+  background: linear-gradient(180deg, #f2a300 0%, #e78d00 100%);
+}
+
+.modalBotonVerde {
+  margin-top: 10px;
+  background: linear-gradient(180deg, #35cf3e 0%, #1ab223 100%);
+}
+
+/* ── Iconos del modal ────────────────────────────────── */
+.modalWhatsapp {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: transparent;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.modalCarrito {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: transparent;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.modalSvg {
+  width: 24px;
+  height: 24px;
+}
+
+/* ── Animaciones ─────────────────────────────────────── */
+@keyframes entradaProducto {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes zoomProducto {
+  from {
+    opacity: 0.8;
+    transform: scale(1.06);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 980px) {
+  .tarjetas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .seccion {
+    padding: 0 14px 28px;
+  }
+
+  .sliderWrap {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .tarjetas {
+    grid-template-columns: 1fr;
+  }
+
+  .flecha {
+    display: none;
+  }
+
+  .modalCompra {
+    padding: 20px 16px 16px;
+    border-radius: 16px;
+  }
+
+  .modalTitulo {
+    font-size: 18px;
+  }
+
+  .modalTexto {
+    font-size: 13px;
+  }
+}
