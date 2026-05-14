@@ -1,136 +1,295 @@
-/* ------------------------------------ */
-/* Reset básico                         */
-/* ------------------------------------ */
-html, body {
-  margin: 0;
-  padding: 0;
-}
+/* ============================================================
+   seccion_1.module.css — Carousel / Banner
+   Mobile     → max-width: 767px
+   Tablet     → 768px – 1023px
+   Laptop     → 1024px – 1439px
+   Desktop    → 1440px+
+   ============================================================ */
 
-/* ------------------------------------ */  
-/* Contenedor principal                 */
-/* ------------------------------------ */
-.main {
-  padding: 0;
+/* ─── BASE ──────────────────────────────────────────────── */
 
-  z-index: 100000;
-}
-
-/* ------------------------------------ */
-/* Carrusel base                        */
-/* ------------------------------------ */
 .carousel {
   position: relative;
   width: 100%;
-  height: 538px;
   overflow: hidden;
+  background: #0c192c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Altura base (laptop) */
+  height: 480px;
 }
 
-/* Imagen del carrusel */
+/* ─── IMAGEN ────────────────────────────────────────────── */
+
+.carousel a {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .carouselImage {
   width: 100%;
   height: 100%;
-  object-fit: fill; /* muestra toda la imagen aunque se deforme */
+  object-fit: cover;
+  object-position: center;
   display: block;
+  user-select: none;
+  pointer-events: none;
 }
+
+/* ─── PLACEHOLDER IMAGEN ────────────────────────────────── */
 
 .imagePlaceholder {
   width: 100%;
   height: 100%;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  box-sizing: border-box;
-  background:
-    radial-gradient(circle at top center, rgba(70, 95, 219, 0.16), transparent 32%),
-    linear-gradient(180deg, #eef3ff 0%, #f9fbff 100%);
-  color: #5b6788;
-  font-size: clamp(1.1rem, 2vw, 1.6rem);
-  font-weight: 800;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1a2e4a;
+  color: #90959c;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
+
+/* ─── ESTADO VACÍO / CARGANDO ───────────────────────────── */
 
 .emptyState {
-  display: grid;
-  place-items: center;
   width: 100%;
   height: 100%;
-  background: #f3f4f6;
-  color: #4b5563;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #90959c;
   font-size: 1rem;
   font-weight: 600;
+  letter-spacing: 0.03em;
+  background: #0c192c;
 }
 
-/* ------------------------------------ */
-/* Tablet                               */
-/* ------------------------------------ */
-@media (min-width: 768px) and (max-width: 1023px) {
-
-  .carousel {
-    height: 38vw;
-  }
-
-}
-
-/* ------------------------------------ */
-/* PC / Escritorio                      */
-/* ------------------------------------ */
-@media (min-width: 1024px) {
-
-  .carousel {
-    height: calc(100vw / 2.35);
-  }
-
-}
-
-/* ------------------------------------ */
-/* Flechas                              */
-/* ------------------------------------ */
+/* ─── FLECHAS ───────────────────────────────────────────── */
 
 .arrowLeft,
 .arrowRight {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: white;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  font-size: 22px;
-  cursor: pointer;
   z-index: 10;
+  background: rgba(12, 25, 44, 0.55);
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  user-select: none;
 }
 
 .arrowLeft {
-  left: 20px;
+  left: 16px;
 }
 
 .arrowRight {
-  right: 20px;
+  right: 16px;
 }
 
-/* ------------------------------------ */
-/* Indicadores                          */
-/* ------------------------------------ */
+.arrowLeft:hover,
+.arrowRight:hover {
+  background: rgba(20, 120, 224, 0.75);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.arrowLeft:active,
+.arrowRight:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+/* ─── INDICADORES (dots) ────────────────────────────────── */
 
 .indicators {
   position: absolute;
-  bottom: 20px;
-  width: 100%;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  gap: 8px;
+  z-index: 10;
 }
 
 .dot {
-  width: 40px;
-  height: 5px;
-  background: rgba(255,255,255,0.4);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
   cursor: pointer;
-  border-radius: 5px;
-  transition: 0.3s;
+  transition: background 0.25s ease, transform 0.25s ease;
+  flex-shrink: 0;
 }
 
-.active {
-  background: white;
+.dot:hover {
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.dot.active {
+  background: #1478e0;
+  transform: scale(1.25);
+}
+
+/* ============================================================
+   MOBILE  →  max-width: 767px
+   ============================================================ */
+@media (max-width: 767px) {
+  .carousel {
+    height: 200px;
+  }
+
+  .arrowLeft,
+  .arrowRight {
+    width: 32px;
+    height: 32px;
+    font-size: 0.85rem;
+  }
+
+  .arrowLeft {
+    left: 8px;
+  }
+
+  .arrowRight {
+    right: 8px;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+  }
+
+  .indicators {
+    bottom: 8px;
+    gap: 6px;
+  }
+
+  .emptyState,
+  .imagePlaceholder {
+    font-size: 0.85rem;
+  }
+}
+
+/* ============================================================
+   TABLET  →  768px – 1023px
+   ============================================================ */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .carousel {
+    height: 320px;
+  }
+
+  .arrowLeft,
+  .arrowRight {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  .arrowLeft {
+    left: 12px;
+  }
+
+  .arrowRight {
+    right: 12px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .indicators {
+    bottom: 10px;
+    gap: 7px;
+  }
+}
+
+/* ============================================================
+   LAPTOP  →  1024px – 1439px
+   ============================================================ */
+@media (min-width: 1024px) and (max-width: 1439px) {
+  .carousel {
+    height: 480px;
+  }
+
+  .arrowLeft,
+  .arrowRight {
+    width: 44px;
+    height: 44px;
+    font-size: 1.1rem;
+  }
+
+  .arrowLeft {
+    left: 20px;
+  }
+
+  .arrowRight {
+    right: 20px;
+  }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+  }
+
+  .indicators {
+    bottom: 16px;
+    gap: 8px;
+  }
+}
+
+/* ============================================================
+   DESKTOP GRANDE  →  1440px+
+   ============================================================ */
+@media (min-width: 1440px) {
+  .carousel {
+    height: 580px;
+  }
+
+  .arrowLeft,
+  .arrowRight {
+    width: 52px;
+    height: 52px;
+    font-size: 1.3rem;
+  }
+
+  .arrowLeft {
+    left: 28px;
+  }
+
+  .arrowRight {
+    right: 28px;
+  }
+
+  .dot {
+    width: 11px;
+    height: 11px;
+  }
+
+  .dot.active {
+    transform: scale(1.3);
+  }
+
+  .indicators {
+    bottom: 20px;
+    gap: 10px;
+  }
+
+  .emptyState,
+  .imagePlaceholder {
+    font-size: 1.2rem;
+  }
 }

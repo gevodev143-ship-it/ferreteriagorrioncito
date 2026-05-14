@@ -17,7 +17,6 @@
   grid-template-columns: auto minmax(280px, 1fr) auto auto;
   align-items: center;
   gap: 12px;
-  padding: 8px 14px;
   background: #0B1E57;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
 }
