@@ -196,7 +196,6 @@ export default function Seccion_4() {
   return (
     <section className={styles.seccion}>
       <div className={styles.contenido}>
-        <span className={styles.kicker}>Cobertura de catalogo</span>
         <h2 className={styles.titulo}>
           Todo lo necesario para que tu proyecto avance con respaldo comercial
         </h2>

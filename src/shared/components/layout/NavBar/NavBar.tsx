@@ -27,6 +27,19 @@ type DepartamentoItem = { nombre: string; provincias: ProvinciaItem[] };
 
 const STORAGE_KEY = "cartItems";
 
+const TIPOS_PERMITIDOS = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "application/pdf",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "text/plain",
+];
+
+const PESO_MAXIMO = 10 * 1024 * 1024; // 10 MB
+
 const brandingInicial = {
   nombre: "",
   descripcion: "",
@@ -180,6 +193,31 @@ const leerCarrito = (): CartItem[] => {
   }
 };
 
+// ─── Subir archivo a Supabase Storage ────────────────────────────────────────
+
+async function subirArchivoCotizacion(file: File): Promise<string | null> {
+  const extension  = file.name.split(".").pop() ?? "bin";
+  const nombreUnico = `${Date.now()}-${Math.random().toString(36).slice(2)}.${extension}`;
+
+  const { error } = await supabase.storage
+    .from("cotizaciones")
+    .upload(nombreUnico, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (error) {
+    console.error("Error al subir archivo:", error.message);
+    return null;
+  }
+
+  const { data } = supabase.storage
+    .from("cotizaciones")
+    .getPublicUrl(nombreUnico);
+
+  return data.publicUrl;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function NavBar() {
@@ -192,23 +230,27 @@ export default function NavBar() {
   const [mostrarModalCotizar, setMostrarModalCotizar] = useState(false);
   const [mostrarUbicacion, setMostrarUbicacion] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [archivoAdjunto, setArchivoAdjunto] = useState("");
-  const [rucDni, setRucDni] = useState("");
+
+  // ─── Estado del archivo ───────────────────────────────────────────────────
+  const [archivoNombre, setArchivoNombre]     = useState("");
+  const [archivoUrl, setArchivoUrl]           = useState<string | null>(null);
+  const [subiendoArchivo, setSubiendoArchivo] = useState(false);
+  const [errorArchivo, setErrorArchivo]       = useState("");
+
+  const [rucDni, setRucDni]       = useState("");
   const [materiales, setMateriales] = useState("");
   const [referencia, setReferencia] = useState("");
   const [departamento, setDepartamento] = useState("");
-  const [distrito, setDistrito] = useState("");
-  const [provincia, setProvincia] = useState("");
+  const [distrito, setDistrito]     = useState("");
+  const [provincia, setProvincia]   = useState("");
 
   // ── Carrito ─────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     setCartItems(leerCarrito());
-
     const handleCartUpdate = () => setCartItems(leerCarrito());
     window.addEventListener("cartUpdated", handleCartUpdate);
     window.addEventListener("storage", handleCartUpdate);
-
     return () => {
       window.removeEventListener("cartUpdated", handleCartUpdate);
       window.removeEventListener("storage", handleCartUpdate);
@@ -254,29 +296,71 @@ export default function NavBar() {
     setDistrito(prov.distritos[0]?.nombre ?? "");
   };
 
+  // ── Archivo ─────────────────────────────────────────────────────────────────
+
+  const handleArchivo = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo
+    if (!TIPOS_PERMITIDOS.includes(file.type)) {
+      setErrorArchivo("Solo se permiten imágenes, PDF, Excel o .txt");
+      setArchivoNombre("");
+      setArchivoUrl(null);
+      return;
+    }
+
+    // Validar peso
+    if (file.size > PESO_MAXIMO) {
+      setErrorArchivo("El archivo no puede superar los 10 MB");
+      setArchivoNombre("");
+      setArchivoUrl(null);
+      return;
+    }
+
+    setErrorArchivo("");
+    setArchivoNombre(file.name);
+    setArchivoUrl(null);
+    setSubiendoArchivo(true);
+
+    const url = await subirArchivoCotizacion(file);
+
+    setSubiendoArchivo(false);
+
+    if (!url) {
+      setErrorArchivo("Error al subir el archivo. Intenta de nuevo.");
+      setArchivoNombre("");
+      return;
+    }
+
+    setArchivoUrl(url);
+  };
+
   // ── Cotizar ─────────────────────────────────────────────────────────────────
 
   const abrirCotizar = () => {
     setMostrarModalCotizar(true);
     setMostrarUbicacion(false);
-    setArchivoAdjunto("");
+    resetArchivo();
+  };
+
+  const resetArchivo = () => {
+    setArchivoNombre("");
+    setArchivoUrl(null);
+    setErrorArchivo("");
+    setSubiendoArchivo(false);
   };
 
   const cerrarCotizar = () => {
     setMostrarModalCotizar(false);
     setMostrarUbicacion(false);
-    setArchivoAdjunto("");
+    resetArchivo();
     setRucDni("");
     setMateriales("");
     setReferencia("");
     setDepartamento("");
     setProvincia("");
     setDistrito("");
-  };
-
-  const handleArchivo = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    setArchivoAdjunto(file ? file.name : "");
   };
 
   const handleRucDniChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -292,12 +376,17 @@ export default function NavBar() {
       return;
     }
     if (documento.length !== 8 && documento.length !== 11) {
-      window.alert("El DNI debe tener 8 digitos y el RUC 11 digitos.");
+      window.alert("El DNI debe tener 8 dígitos y el RUC 11 dígitos.");
+      return;
+    }
+
+    if (subiendoArchivo) {
+      window.alert("Espera a que termine de subir el archivo.");
       return;
     }
 
     const mensaje = [
-      `DNI/RUC: ${documento || "-"}`,
+      `DNI/RUC: ${documento}`,
       `UBICACION: ${
         departamento && provincia && distrito
           ? `${departamento}-${provincia}-${distrito}`
@@ -305,7 +394,9 @@ export default function NavBar() {
       }`,
       `REFERENCIA: ${referencia.trim() || "-"}`,
       `MATERIALES: ${materiales.trim() || "-"}`,
-      `LISTA ADJUNTADA: ${archivoAdjunto || "No adjunto archivo"}`,
+      archivoUrl
+        ? `ARCHIVO ADJUNTO: ${archivoUrl}`
+        : `LISTA ADJUNTADA: No adjuntó archivo`,
     ].join("\n\n");
 
     window.open(
@@ -339,19 +430,7 @@ export default function NavBar() {
           </button>
 
           <Link to="/cart" className={style.cartButton} aria-label="Carrito">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 30 30"
-              fill="none"
-              stroke="white"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M3 3h2l2.4 12.1a1 1 0 0 0 1 .9h9.7a1 1 0 0 0 1-.8L21 7H7" />
-              <circle cx="10" cy="20" r="1" />
-              <circle cx="18" cy="20" r="1" />
-            </svg>
+            {icon.iconCarrito({ className: style.carritoIcon })}
             {totalItems > 0 && <span className={style.cartCount}>{totalItems}</span>}
           </Link>
         </div>
@@ -376,9 +455,9 @@ export default function NavBar() {
                 alt="Logo Gorrioncito"
                 className={style.quoteLogo}
               />
-              <div>
-                <h3 className={style.quoteTitle}>{branding.nombre}</h3>
-                <p className={style.quoteSubtitle}>{branding.descripcion}</p>
+              <div className={style.nameCompany}>
+                <h3><b>Gorrioncito</b></h3>
+                <p>Dstribuidora y Ferreteria</p>
               </div>
             </div>
 
@@ -387,7 +466,7 @@ export default function NavBar() {
             </p>
 
             <div className={style.inputWrap}>
-              <span className={style.inputIcon}>ID</span>
+              <p>{icon.iconDni({ className: style.ubicacionIcon })}</p>
               <input
                 type="text"
                 placeholder="RUC/DNI"
@@ -406,7 +485,7 @@ export default function NavBar() {
             >
               {icon.iconUbicacion({ className: style.ubicacionIcon })}
               <span>{ubicacionSeleccionada}</span>
-              <span className={style.selectArrow}>v</span>
+              {icon.iconArrowDown({ className: style.triggerArrow  })}
             </button>
 
             {mostrarUbicacion && (
@@ -418,12 +497,14 @@ export default function NavBar() {
                     onChange={cambiarDepartamento}
                   >
                     <option value="">Departamento</option>
+                    
                     {ubicaciones.map((item) => (
                       <option key={item.nombre} value={item.nombre}>
                         {item.nombre}
                       </option>
                     ))}
                   </select>
+                   {icon.iconArrowDown({ className: style.selectArrow })}
                 </div>
 
                 <div className={style.realSelectWrap}>
@@ -439,6 +520,7 @@ export default function NavBar() {
                       </option>
                     ))}
                   </select>
+                  {icon.iconArrowDown({ className: style.selectArrow })}
                 </div>
 
                 <div className={style.realSelectWrap}>
@@ -454,6 +536,7 @@ export default function NavBar() {
                       </option>
                     ))}
                   </select>
+                  {icon.iconArrowDown({ className: style.selectArrow })}
                 </div>
 
                 <div className={style.referenciaBox}>
@@ -475,14 +558,39 @@ export default function NavBar() {
               onChange={(e) => setMateriales(e.target.value)}
             />
 
-            <label className={style.uploadButton}>
-              <input type="file" className={style.fileInput} onChange={handleArchivo} />
-              Adjuntar lista (Opcional)
+            {/* ─── Adjuntar archivo ─────────────────────────────────────── */}
+            <label
+              className={style.uploadButton}
+              style={{ opacity: subiendoArchivo ? 0.6 : 1, cursor: subiendoArchivo ? "not-allowed" : "pointer" }}
+            >
+              <input
+                type="file"
+                className={style.fileInput}
+                accept=".jpg,.jpeg,.png,.webp,.gif,.pdf,.xls,.xlsx,.txt"
+                onChange={handleArchivo}
+                disabled={subiendoArchivo}
+              />
+              {subiendoArchivo ? "Subiendo archivo..." : "Adjuntar lista (Opcional)"}
             </label>
 
-            {archivoAdjunto && <p className={style.fileName}>{archivoAdjunto}</p>}
+            {/* Estado del archivo */}
+            {errorArchivo && (
+              <p style={{ color: "#e53e3e", fontSize: "0.8rem", marginTop: "4px" }}>
+                ⚠ {errorArchivo}
+              </p>
+            )}
+            {archivoNombre && !errorArchivo && (
+              <p className={style.fileName}>
+                {subiendoArchivo ? `⏳ Subiendo: ${archivoNombre}` : `✓ ${archivoNombre}`}
+              </p>
+            )}
 
-            <button type="button" className={style.quoteSubmit} onClick={cotizarPorWhatsapp}>
+            <button
+              type="button"
+              className={style.quoteSubmit}
+              onClick={cotizarPorWhatsapp}
+              disabled={subiendoArchivo}
+            >
               <span>{icon.iconWhatsApp({ className: style.whatsappIcon })}</span>
               <span>Cotizar</span>
             </button>

@@ -9,7 +9,7 @@ export const NavBarLogo = () => {
         src={images.logoGorrion}
         alt="Logo Gorrioncito"
         className={style.logoCompany}
-      />
+      />  
       <div className={style.nameCompany}>
         <h3><b>Gorrioncito</b></h3>
         <p>Distribuidora y Ferreteria</p>

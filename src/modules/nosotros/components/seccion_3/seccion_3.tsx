@@ -5,8 +5,6 @@ export default function Seccion_3() {
     <section className={styles.seccion}>
       <div className={styles.contenido}>
         <article className={styles.bloque}>
-          <div className={styles.insignia}>01</div>
-          <span className={styles.kicker}>Proposito</span>
           <h2 className={styles.titulo}>MISION</h2>
           <p className={styles.texto}>
             Brindar seguridad a nuestros potenciales clientes y sus colaboradores
@@ -17,8 +15,6 @@ export default function Seccion_3() {
         </article>
 
         <article className={styles.bloque}>
-          <div className={styles.insignia}>02</div>
-          <span className={styles.kicker}>Direccion</span>
           <h2 className={styles.titulo}>VISION</h2>
           <p className={styles.texto}>
             Ser una empresa reconocida y lider en el mercado en la distribucion y

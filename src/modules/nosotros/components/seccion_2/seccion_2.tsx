@@ -87,16 +87,12 @@ export default function Seccion_2() {
       <div className={styles.contenido}>
         <div className={styles.encabezado}>
           <div>
-            <span className={styles.kicker}>Respaldo comercial</span>
+            
             <h2 className={styles.titulo}>Marcas reconocidas en nuestro portafolio</h2>
             <p className={styles.descripcion}>
               Trabajamos con fabricantes y lineas comerciales con presencia
               constante en seguridad industrial, ferreteria y suministros para obra.
             </p>
-          </div>
-          <div className={styles.resumen}>
-            <strong>{marcas.length}</strong>
-            <span>marcas destacadas</span>
           </div>
         </div>
 

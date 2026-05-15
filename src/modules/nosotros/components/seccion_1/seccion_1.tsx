@@ -1,11 +1,12 @@
 import styles from "./seccion_1.module.css";
+import { images } from "./../../../../assets/img/index.js";
+import { icon } from "./../../../../core/icons/";
 
 export default function Seccion_1() {
   return (
     <section className={styles.seccion}>
       <div className={styles.contenido}>
         <div className={styles.texto}>
-          <span className={styles.kicker}>Nuestra empresa</span>
           <h2 className={styles.titulo}>QUIENES SOMOS</h2>
           <p className={styles.subtitulo}>
             Distribucion tecnica y comercial con enfoque en industria,
@@ -31,30 +32,28 @@ export default function Seccion_1() {
 
           <div className={styles.contactos}>
             <div className={styles.contactoCard}>
-              <span className={styles.icono}>T</span>
+            {icon.iconTelefono({ className: styles.iconoTelefono })}
               <div>
                 <h3>Contactanos</h3>
-                <p>976 258 888</p>
+                <p>915 144 663</p>
               </div>
             </div>
 
             <div className={styles.contactoCard}>
-              <span className={styles.icono}>@</span>
+            {icon.iconCorreo({ className: styles.iconoTelefono })}
               <div>
                 <h3>Correo</h3>
-                <p>GorriYon8to@somaaindustrial.pe</p>
+                <p>distribuidoraferrorgorrioncito@gmail.com</p>
               </div>
             </div>
           </div>
         </div>
-
         <div className={styles.visual}>
-          <div className={styles.visualMarco}>
-            <div className={styles.visualTag}>
-              <strong>Soluciones para obra e industria</strong>
-              <span>Atencion comercial con respaldo de marcas lideres.</span>
-            </div>
-          </div>
+          <img
+            src={images.prueba}
+            alt="Imagen corporativa"
+            className={styles.imagen}
+          />
         </div>
       </div>
     </section>

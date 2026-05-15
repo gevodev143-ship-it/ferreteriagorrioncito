@@ -5,6 +5,8 @@ import { iconUbicacion } from "./ubicacion";
 import { iconWhatsApp } from "./whatsapp";
 import { iconCarrito } from "./carrito";
 import { iconLupa } from "./lupa";
+import { iconDni } from "./dni";
+import { iconArrowDown } from "./arrowdown"
 
 export const icon = {
   iconHojaPaper,
@@ -13,5 +15,7 @@ export const icon = {
   iconUbicacion,
   iconWhatsApp,
   iconCarrito,
-  iconLupa
+  iconLupa,
+  iconDni,
+  iconArrowDown
 };
