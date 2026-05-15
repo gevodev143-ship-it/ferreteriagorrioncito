@@ -280,3 +280,46 @@ export const buscarProductosPorNombre = async (query: string): Promise<Producto[
   if (error) { console.error(error); return []; }
   return data as Producto[];
 };
+
+export const listarProductosPorCategoria = async (
+  categoria: string,
+  pagina = 1,
+  limite = 100
+): Promise<Producto[]> => {
+  const desde = (pagina - 1) * limite;
+  const hasta = desde + limite - 1;
+
+  // 1️⃣ Buscar el ctgraid por nombre
+  const { data: catData, error: catError } = await supabase
+    .from("categoria")
+    .select("ctgraid")
+    .eq("ctgraimgnombre", categoria)
+    .single();
+
+  if (catError || !catData) {
+    console.error("Categoría no encontrada:", catError);
+    return [];
+  }
+
+  // 2️⃣ Filtrar productos directamente por ctgraid
+  const { data, error } = await supabase
+    .from("producto")
+    .select(`
+      prdcid,
+      prdcimgnombre,
+      prdcimgnombrebucket,
+      prdcprecio,
+      ctgraid,
+      categoria ( ctgraid, ctgraimgnombre )
+    `)
+    .eq("ctgraid", catData.ctgraid)   // 👈 filtro directo, sin join condicional
+    .order("prdcid", { ascending: true })
+    .range(desde, hasta);
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data as Producto[];
+};

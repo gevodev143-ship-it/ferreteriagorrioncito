@@ -2,7 +2,7 @@
 import style from "./ProductPage.module.css";
 import { startTransition, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { supabase } from "../../../app/services/apiSupabase";
+import { supabase } from "../../../lib/supabase";
 
 import Seccion_1 from "../components/seccion_1/seccion_1";
 import Seccion_2 from "../components/seccion_2/seccion_2";

@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./seccion_3.module.css";
-// ➕ Agregar este import
 import { icon } from "../../../../core/icons";
 
 import {
+  buscarProductosPorNombre,
   getImagenProducto,
   listarProductos,
   type Producto,
@@ -27,7 +27,6 @@ type CartItem = {
   cantidad: number;
 };
 
-// Helpers para normalizar texto desde nombre de bucket/archivo
 const normalizarNombre = (nombre: string | undefined | null, fallback: string) =>
   nombre
     ?.replace(/\.[^.]+$/, "")
@@ -49,9 +48,17 @@ export default function Seccion_3({
 
   const [mostrarModalCompra, setMostrarModalCompra] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
+
+  // ─── Productos base (sin búsqueda de texto) ───────────────────────────────
   const [productos, setProductos] = useState<Producto[]>([]);
   const [cargandoProductos, setCargandoProductos] = useState(true);
 
+  // ─── Resultados de búsqueda por texto ────────────────────────────────────
+  const [productosBusqueda, setProductosBusqueda] = useState<Producto[]>([]);
+  const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ─── Carga inicial ────────────────────────────────────────────────────────
   useEffect(() => {
     const cargarProductos = async () => {
       try {
@@ -67,11 +74,41 @@ export default function Seccion_3({
     cargarProductos();
   }, []);
 
+  // ─── Búsqueda real contra BD con debounce ────────────────────────────────
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (!busquedaGeneral.trim()) {
+      setProductosBusqueda([]);
+      return;
+    }
+
+    debounceRef.current = setTimeout(async () => {
+      try {
+        setCargandoBusqueda(true);
+        const resultados = await buscarProductosPorNombre(busquedaGeneral.trim());
+        setProductosBusqueda(resultados);
+      } catch (error) {
+        console.error("Error en búsqueda:", error);
+        setProductosBusqueda([]);
+      } finally {
+        setCargandoBusqueda(false);
+      }
+    }, 350);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [busquedaGeneral]);
+
+  // ─── Lista base: si hay búsqueda de texto usa resultados de BD, si no usa todos ──
   const productosFiltrados = useMemo(() => {
-    return productos.filter((producto) => {
+    const base = busquedaGeneral.trim() ? productosBusqueda : productos;
+
+    // Aplicar filtros de categoría y marca encima
+    return base.filter((producto) => {
       const categoria = normalizarNombre(producto.categoria?.ctgraimgnombre, "Sin categoria");
       const marca = normalizarNombre(producto.marca?.marcaimgnombre, "Sin marca");
-      const titulo = normalizarNombre(producto.prdcimgnombre, `Producto ${producto.prdcid}`);
 
       const coincideCategoria =
         categoriasSeleccionadas.length === 0 ||
@@ -81,20 +118,18 @@ export default function Seccion_3({
         marcasSeleccionadas.length === 0 ||
         marcasSeleccionadas.includes(marca);
 
-      const textoBusqueda = `${titulo} ${categoria} ${marca}`.toLowerCase();
-      const coincideBusqueda =
-        busquedaGeneral.length === 0 ||
-        textoBusqueda.includes(busquedaGeneral.toLowerCase());
-
-      return coincideCategoria && coincideMarca && coincideBusqueda;
+      return coincideCategoria && coincideMarca;
     });
-  }, [productos, categoriasSeleccionadas, marcasSeleccionadas, busquedaGeneral]);
+  }, [productos, productosBusqueda, busquedaGeneral, categoriasSeleccionadas, marcasSeleccionadas]);
 
   const productosRenderizados = useMemo(
     () => productosFiltrados.slice(0, productosVisibles),
     [productosFiltrados, productosVisibles]
   );
 
+  const cargando = cargandoProductos || cargandoBusqueda;
+
+  // ─── Modal y carrito ──────────────────────────────────────────────────────
   const abrirModalCompra = (producto: Producto) => {
     setProductoSeleccionado(producto);
     setMostrarModalCompra(true);
@@ -126,13 +161,7 @@ export default function Seccion_3({
         )
       : [
           ...cartItems,
-          {
-            id: productoSeleccionado.prdcid,
-            titulo,
-            categoria,
-            imagen,
-            cantidad: 1,
-          },
+          { id: productoSeleccionado.prdcid, titulo, categoria, imagen, cantidad: 1 },
         ];
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextItems));
@@ -221,8 +250,10 @@ export default function Seccion_3({
 
         <div className={styles.cuerpo}>
           <div className={styles.productosArea}>
-            {cargandoProductos ? (
-              <div className={styles.vacio}>Cargando productos...</div>
+            {cargando ? (
+              <div className={styles.vacio}>
+                {cargandoBusqueda ? "Buscando productos..." : "Cargando productos..."}
+              </div>
             ) : productosFiltrados.length > 0 ? (
               <div className={styles.gridProductos}>
                 {productosRenderizados.map((producto) => {
@@ -252,7 +283,11 @@ export default function Seccion_3({
                       <p className={styles.productoCategoria}>{categoria}</p>
                       <p className={styles.productoMarca}>{marca}</p>
 
-                      <button type="button" className={styles.loQuieroButton} onClick={() => abrirModalCompra(producto)}>
+                      <button
+                        type="button"
+                        className={styles.loQuieroButton}
+                        onClick={() => abrirModalCompra(producto)}
+                      >
                         <p>{icon.iconCarrito({ className: styles.modalSvg })}</p>
                         Lo quiero
                       </button>
@@ -262,7 +297,9 @@ export default function Seccion_3({
               </div>
             ) : (
               <div className={styles.vacio}>
-                No hay productos para la seleccion actual.
+                {busquedaGeneral.trim()
+                  ? `No se encontraron productos para "${busquedaGeneral}".`
+                  : "No hay productos para la seleccion actual."}
               </div>
             )}
 

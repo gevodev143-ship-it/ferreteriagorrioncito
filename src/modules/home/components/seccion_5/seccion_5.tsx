@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import style from "./seccion_5.module.css";
-import { supabase } from "../../../../app/services/apiSupabase";
+import { supabase } from "../../../../lib/supabase";
 
 type VideoItem = {
   id: number;

@@ -14,13 +14,14 @@
   border: 0;
   outline: none;
   background: transparent;
-  color: #8f9091a9;
+  color: #080808a9;
   font-family: Sora, sans-serif;
   font-size: 0.95rem;
+  font-weight: bold;
 }
 
 .searchInput::placeholder {
-  color: #58595a;
+  color: #b3b3b3;
 }
 
 .searchButton {

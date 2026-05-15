@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "./seccion_1.module.css";
-import { supabase } from "../../../../app/services/apiSupabase";
+import { supabase } from "../../../..//lib/supabase";
 import {
   getField,
   listStorageFolderFiles,

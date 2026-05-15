@@ -18,12 +18,14 @@ type Props = {
   onMarcaSeleccionada: (marca: string) => void;
 };
 
+// Normaliza el nombre del bucket/archivo al mismo formato que se muestra en pantalla
 const normalizarNombre = (nombre: string | undefined | null, fallback: string) =>
   nombre
-    ?.replace(/\.[^.]+$/, "")
-    ?.replace(/[_-]+/g, " ")
+    ?.replace(/\.[^.]+$/, "")        // quita extensión
+    ?.replace(/[_-]+/g, " ")         // guiones/underscores → espacios
     ?.trim()
-    ?.replace(/\b\w/g, (c) => c.toUpperCase()) ?? fallback;
+    ?.replace(/\b\w/g, (c) => c.toUpperCase()) // Title Case
+    ?? fallback;
 
 export default function Seccion_2({
   categoriasSeleccionadas,
@@ -42,19 +44,18 @@ export default function Seccion_2({
     listarMarcas().then((data) => setMarcas(data as Marca[]));
   }, []);
 
+  // ─── Filtrado: comparar sobre el nombre YA normalizado ───────────────────
   const categoriasFiltradas = useMemo(() => {
+    const query = busqueda.toLowerCase().trim();
     return categorias.filter((item) =>
-      normalizarNombre(item.ctgraimgnombre, "")
-        .toLowerCase()
-        .includes(busqueda.toLowerCase())
+      normalizarNombre(item.ctgraimgnombre, "").toLowerCase().includes(query)
     );
   }, [busqueda, categorias]);
 
   const marcasFiltradas = useMemo(() => {
+    const query = busqueda.toLowerCase().trim();
     return marcas.filter((item) =>
-      normalizarNombre(item.marcaimgnombre, "")
-        .toLowerCase()
-        .includes(busqueda.toLowerCase())
+      normalizarNombre(item.marcaimgnombre, "").toLowerCase().includes(query)
     );
   }, [busqueda, marcas]);
 
@@ -64,14 +65,14 @@ export default function Seccion_2({
         <button
           type="button"
           className={`${styles.tab} ${tabActiva === "categorias" ? styles.tabActiva : ""}`}
-          onClick={() => setTabActiva("categorias")}
+          onClick={() => { setTabActiva("categorias"); setBusqueda(""); }}
         >
           Categorias
         </button>
         <button
           type="button"
           className={`${styles.tab} ${tabActiva === "marcas" ? styles.tabActiva : ""}`}
-          onClick={() => setTabActiva("marcas")}
+          onClick={() => { setTabActiva("marcas"); setBusqueda(""); }}
         >
           Marcas
         </button>
@@ -91,40 +92,49 @@ export default function Seccion_2({
       {tabActiva === "categorias" ? (
         <div className={styles.lista}>
           <h3 className={styles.titulo}>Categorias</h3>
-          {categoriasFiltradas.map((categoria) => {
-            const nombre = normalizarNombre(categoria.ctgraimgnombre, "Sin categoria");
-            return (
-              <button
-                key={categoria.ctgraid}
-                type="button"
-                className={`${styles.item} ${
-                  categoriasSeleccionadas.includes(nombre) ? styles.itemActivo : ""
-                }`}
-                onClick={() => onCategoriaSeleccionada(nombre)}
-              >
-                <span>{nombre}</span>
-              </button>
-            );
-          })}
+          {categoriasFiltradas.length === 0 && busqueda.trim() ? (
+            <p className={styles.sinResultados}>Sin resultados para "{busqueda}"</p>
+          ) : (
+            categoriasFiltradas.map((categoria) => {
+              // El nombre normalizado es lo que se muestra Y lo que se pasa al filtro
+              const nombre = normalizarNombre(categoria.ctgraimgnombre, "Sin categoria");
+              return (
+                <button
+                  key={categoria.ctgraid}
+                  type="button"
+                  className={`${styles.item} ${
+                    categoriasSeleccionadas.includes(nombre) ? styles.itemActivo : ""
+                  }`}
+                  onClick={() => onCategoriaSeleccionada(nombre)}
+                >
+                  <span>{nombre}</span>
+                </button>
+              );
+            })
+          )}
         </div>
       ) : (
         <div className={styles.lista}>
           <h3 className={styles.titulo}>Marcas</h3>
-          {marcasFiltradas.map((marca) => {
-            const nombre = normalizarNombre(marca.marcaimgnombre, "Sin marca");
-            return (
-              <button
-                key={marca.marcaid}
-                type="button"
-                className={`${styles.item} ${
-                  marcasSeleccionadas.includes(nombre) ? styles.itemActivo : ""
-                }`}
-                onClick={() => onMarcaSeleccionada(nombre)}
-              >
-                <span>{nombre}</span>
-              </button>
-            );
-          })}
+          {marcasFiltradas.length === 0 && busqueda.trim() ? (
+            <p className={styles.sinResultados}>Sin resultados para "{busqueda}"</p>
+          ) : (
+            marcasFiltradas.map((marca) => {
+              const nombre = normalizarNombre(marca.marcaimgnombre, "Sin marca");
+              return (
+                <button
+                  key={marca.marcaid}
+                  type="button"
+                  className={`${styles.item} ${
+                    marcasSeleccionadas.includes(nombre) ? styles.itemActivo : ""
+                  }`}
+                  onClick={() => onMarcaSeleccionada(nombre)}
+                >
+                  <span>{nombre}</span>
+                </button>
+              );
+            })
+          )}
         </div>
       )}
     </aside>

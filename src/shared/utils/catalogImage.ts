@@ -1,4 +1,4 @@
-  import { supabase } from "../../app/services/apiSupabase";
+  import { supabase } from "../../../src/lib/supabase";
 
   const ABSOLUTE_URL_REGEX = /^(https?:)?\/\//i;
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./seccion_4.module.css";
-import { supabase } from "../../../../app/services/apiSupabase";
+import { supabase } from "../../../../lib/supabase";
 import { getField } from "../../../../shared/utils/catalogImage";
 
 type CategoriaRelacionada = {
