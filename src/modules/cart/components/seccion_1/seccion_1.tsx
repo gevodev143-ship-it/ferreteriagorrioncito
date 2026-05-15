@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import style from "./seccion_1.module.css";
+import { icon } from "../../../../core/icons"
 
-// ─── tipo compartido con Seccion_4 ───────────────────────────
 export type CartItem = {
   id: string;
   titulo: string;
@@ -12,21 +12,29 @@ export type CartItem = {
 };
 
 const STORAGE_KEY = "cartItems";
+const WHATSAPP_NUMBER = "51915144663";
 
 const Seccion_1 = () => {
   const [items, setItems] = useState<CartItem[]>([]);
-  // 👇 set de ids seleccionados para el checkbox
   const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
+  // ─── Carga items desde localStorage ──────────────────────────────────────
+  const cargarItems = () => {
     const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return;
+    if (!data) return setItems([]);
     try {
       const parsed = JSON.parse(data) as CartItem[];
       setItems(Array.isArray(parsed) ? parsed : []);
     } catch {
       setItems([]);
     }
+  };
+
+  // ─── Al montar: carga inicial + escucha evento cartUpdated ────────────────
+  useEffect(() => {
+    cargarItems();
+    window.addEventListener("cartUpdated", cargarItems);
+    return () => window.removeEventListener("cartUpdated", cargarItems);
   }, []);
 
   const persistir = (nextItems: CartItem[]) => {
@@ -34,7 +42,6 @@ const Seccion_1 = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextItems));
   };
 
-  // ─── checkbox individual ──────────────────────────────────
   const toggleSeleccionado = (id: string) => {
     setSeleccionados((prev) => {
       const next = new Set(prev);
@@ -43,7 +50,6 @@ const Seccion_1 = () => {
     });
   };
 
-  // ─── checkbox "seleccionar todos" ────────────────────────
   const todosSeleccionados =
     items.length > 0 && seleccionados.size === items.length;
 
@@ -55,7 +61,6 @@ const Seccion_1 = () => {
     }
   };
 
-  // ─── cantidad ────────────────────────────────────────────
   const cambiarCantidad = (id: string, delta: number) => {
     const nextItems = items.map((item) =>
       item.id === id
@@ -64,13 +69,10 @@ const Seccion_1 = () => {
     );
     persistir(nextItems);
     window.dispatchEvent(new Event("cartUpdated"));
-
   };
 
-  // ─── eliminar ────────────────────────────────────────────
   const eliminar = (id: string) => {
     const nextItems = items.filter((item) => item.id !== id);
-    // también lo quitamos de seleccionados
     setSeleccionados((prev) => {
       const next = new Set(prev);
       next.delete(id);
@@ -80,7 +82,6 @@ const Seccion_1 = () => {
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
-  // ─── conteo ──────────────────────────────────────────────
   const totalItems = useMemo(
     () => items.reduce((acc, item) => acc + item.cantidad, 0),
     [items]
@@ -94,7 +95,39 @@ const Seccion_1 = () => {
     [items, seleccionados]
   );
 
-  // ─── carrito vacío ───────────────────────────────────────
+  // ─── Armar mensaje WhatsApp ───────────────────────────────
+  const armarMensaje = (lista: CartItem[]) => {
+    const lineas = lista.map(
+      (item) => `• ${item.titulo} (${item.categoria}) — cantidad: ${item.cantidad}`
+    );
+    return [
+      "Hola, quiero cotizar los siguientes productos:",
+      "",
+      ...lineas,
+    ].join("\n");
+  };
+
+  const cotizarSeleccionados = () => {
+    const lista = items.filter((i) => seleccionados.has(i.id));
+    if (lista.length === 0) return;
+    const mensaje = armarMensaje(lista);
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
+  const cotizarTodo = () => {
+    if (items.length === 0) return;
+    const mensaje = armarMensaje(items);
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
   if (items.length === 0) {
     return (
       <section className={style.vacio}>
@@ -125,11 +158,10 @@ const Seccion_1 = () => {
       <div className={style.contenido}>
         <div className={style.listaArea}>
           <h2 className={style.titulo}>
-            <span className={style.tituloIcono}>🛒</span>
+            <p>{icon.iconCarrito({ className: style.modalIconoImagen })}</p>
             <span>Mi Carrito</span>
           </h2>
 
-          {/* ─── selector global ─── */}
           <div className={style.selector} onClick={toggleTodos}>
             <span
               className={`${style.selectorCheck} ${
@@ -143,72 +175,54 @@ const Seccion_1 = () => {
             </span>
           </div>
 
-          {/* ─── lista de items ─── */}
           <div className={style.lista}>
             {items.map((item) => {
               const estaSeleccionado = seleccionados.has(item.id);
-
               return (
                 <article
                   key={item.id}
-                  className={`${style.card} ${
-                    estaSeleccionado ? style.cardSeleccionada : ""
-                  }`}
+                  className={`${style.card} ${estaSeleccionado ? style.cardSeleccionada : ""}`}
                 >
-                  {/* checkbox individual */}
+                  {/* Círculo checkbox */}
                   <div
-                    className={`${style.cardCheck} ${
-                      estaSeleccionado ? style.cardCheckActivo : ""
-                    }`}
+                    className={`${style.cardCheck} ${estaSeleccionado ? style.cardCheckActivo : ""}`}
                     onClick={() => toggleSeleccionado(item.id)}
                     role="checkbox"
                     aria-checked={estaSeleccionado}
                     tabIndex={0}
-                    onKeyDown={(e) =>
-                      e.key === " " && toggleSeleccionado(item.id)
-                    }
+                    onKeyDown={(e) => e.key === " " && toggleSeleccionado(item.id)}
                   >
                     {estaSeleccionado ? "✓" : ""}
                   </div>
 
+                  {/* Imagen pequeña */}
                   <div className={style.cardImagenWrap}>
-                    <img
-                      src={item.imagen}
-                      alt={item.titulo}
-                      className={style.cardImagen}
-                    />
+                    <img src={item.imagen} alt={item.titulo} className={style.cardImagen} />
                   </div>
 
+                  {/* Info: badges arriba, nombre abajo */}
                   <div className={style.cardInfo}>
-                    <h3 className={style.cardTitulo}>{item.titulo}</h3>
-                    <p className={style.cardCategoria}>{item.categoria}</p>
-                    <p className={style.cantidadLabel}>Cantidad</p>
-
-                    <div className={style.cardAcciones}>
-                      <div className={style.cantidadBox}>
-                        <button
-                          type="button"
-                          onClick={() => cambiarCantidad(item.id, -1)}
-                        >
-                          -
-                        </button>
-                        <span>{item.cantidad}</span>
-                        <button
-                          type="button"
-                          onClick={() => cambiarCantidad(item.id, 1)}
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      <button
-                        type="button"
-                        className={style.eliminarBtn}
-                        onClick={() => eliminar(item.id)}
-                      >
-                        Eliminar
-                      </button>
+                    <div className={style.badges}>
+                      <span className={style.badgeCategoria}>{item.categoria}</span>
+                      <span className={style.badgeMarca}>{item.marca}</span>
                     </div>
+                    <h3 className={style.cardTitulo}>{item.titulo}</h3>
+                  </div>
+
+                  {/* Cantidad + eliminar a la derecha */}
+                  <div className={style.acciones}>
+                    <div className={style.cantidadBox}>
+                      <button type="button" onClick={() => cambiarCantidad(item.id, -1)}>−</button>
+                      <span>{item.cantidad}</span>
+                      <button type="button" onClick={() => cambiarCantidad(item.id, 1)}>+</button>
+                    </div>
+                    <button
+                      type="button"
+                      className={style.eliminarBtn}
+                      onClick={() => eliminar(item.id)}
+                    >
+                      Eliminar
+                    </button>
                   </div>
                 </article>
               );
@@ -224,17 +238,14 @@ const Seccion_1 = () => {
           </p>
 
           <div className={style.resumenProductos}>
-            Productos en carrito: <strong>{items.length}</strong>
+            Productos en carrito: <strong>{items.length}</strong><br />
+            Productos Seleccionados: <strong>{seleccionados.size}</strong>
           </div>
 
           <div className={style.totales}>
-            <p>
-              <span>Unidades totales:</span>
-              <strong>{totalItems}</strong>
-            </p>
             <p className={style.totalFinal}>
-              <span>Seleccionados:</span>
-              <strong>{totalSeleccionados} uds.</strong>
+              <span>Unidades Totales:</span>
+              <strong>{totalSeleccionados}</strong>
             </p>
           </div>
 
@@ -242,12 +253,17 @@ const Seccion_1 = () => {
             type="button"
             className={style.botonVerde}
             disabled={seleccionados.size === 0}
+            onClick={cotizarSeleccionados}
           >
-            Cotizar seleccionados ({seleccionados.size})
+            Cotizar seleccionados
           </button>
 
-          <button type="button" className={style.botonVerdeSecundario}>
-            Cotizar todo ({items.length})
+          <button
+            type="button"
+            className={style.botonVerdeSecundario}
+            onClick={cotizarTodo}
+          >
+            Cotizar todo
           </button>
 
           <Link to="/product" className={style.verMas}>

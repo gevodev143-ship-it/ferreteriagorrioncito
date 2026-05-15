@@ -26,6 +26,7 @@ type CartItem = {
   id: number;
   titulo: string;
   categoria: string;
+  marca: string;
   imagen: string;
   cantidad: number;
 };
@@ -202,6 +203,10 @@ export default function Seccion_3({
       productoSeleccionado.categoria?.ctgraimgnombre,
       "Sin categoria"
     );
+      const marca = normalizarNombre(          // 👈 agregar
+    productoSeleccionado.marca?.marcaimgnombre,
+    "Sin marca"
+  );
     const imagen = productoSeleccionado.prdcimgnombrebucket
       ? getImagenProducto(productoSeleccionado.prdcimgnombrebucket)
       : "";
@@ -218,7 +223,7 @@ export default function Seccion_3({
         )
       : [
           ...cartItems,
-          { id: productoSeleccionado.prdcid, titulo, categoria, imagen, cantidad: 1 },
+          { id: productoSeleccionado.prdcid, titulo, categoria, marca, imagen, cantidad: 1 },
         ];
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextItems));
