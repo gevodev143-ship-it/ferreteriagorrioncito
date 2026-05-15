@@ -19,6 +19,10 @@
   gap: 12px;
   background: #0B1E57;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.16);
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  padding-top: 10px;
 }
 
 .whatsappIcon {
