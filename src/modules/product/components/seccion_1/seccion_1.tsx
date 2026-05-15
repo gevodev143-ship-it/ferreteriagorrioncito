@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./seccion_1.module.css";
-import { supabase } from "../../../..//lib/supabase";
+
 import {
-  getField,
-  listStorageFolderFiles,
-  resolveFolderImage,
-  resolveStorageFileName,
-} from "../../../../shared/utils/catalogImage";
+  listarMarcas,
+  getImagenMarca,
+  type Marca,
+} from "../../../../core/services/marca.service";
 
 type MarcaItem = {
   id: number;
@@ -14,21 +13,13 @@ type MarcaItem = {
   imagen: string;
 };
 
-function getStorageUrl(bucketName: string | null, fileName: string | null) {
-  if (!bucketName || !fileName) return "";
-
-  const { data } = supabase.storage.from(bucketName).getPublicUrl(fileName);
-  return data?.publicUrl ?? "";
-}
-
-function buildDisplayName(rawName: string | null, fileName: string | null, fallback: string) {
-  const source = rawName || fileName;
-  if (!source) return fallback;
+function buildDisplayName(rawName: string | null, fallback: string) {
+  const source = rawName || fallback;
+  if (!source) return "Marca";
 
   const baseName = source.replace(/\.[^.]+$/, "");
   const normalized = baseName.replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim();
-
-  if (!normalized) return fallback;
+  if (!normalized) return "Marca";
 
   return normalized.replace(/\b\w/g, (char) => char.toUpperCase());
 }
@@ -37,65 +28,42 @@ export default function Seccion_1() {
   const [pausado, setPausado] = useState(false);
   const [direccion, setDireccion] = useState<"normal" | "reverse">("normal");
   const [marcas, setMarcas] = useState<MarcaItem[]>([]);
+  const pistaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const cargarMarcas = async () => {
       try {
-        const [{ data, error }, archivosMarca] = await Promise.all([
-          supabase.from("marca").select("*").limit(12),
-          listStorageFolderFiles("marca"),
-        ]);
-
-        if (error) {
-          throw error;
-        }
-
-        const marcasMapeadas = ((data ?? []) as Record<string, unknown>[])
-          .map((row, index) => {
-            const id = getField<number>(row, "marcaId", "marcaid", "id") ?? index + 1;
-            const nombre = getField<string>(row, "marcaNombre", "marcanombre", "nombre");
-            const imagenNombre = getField<string>(row, "marcaImgNombre", "marcaimgnombre");
-            const imagenArchivo = getField<string>(
-              row,
-              "marcaImgNombreBucket",
-              "marcaimgnombrebucket"
-            );
-            const archivoResuelto = resolveStorageFileName(
-              imagenArchivo,
-              imagenNombre ?? nombre,
-              archivosMarca
-            );
-
-            return {
-              id: Number(id),
-              nombre: buildDisplayName(nombre, imagenNombre, `Marca ${id}`),
-              imagen: resolveFolderImage("marca", archivoResuelto, getStorageUrl),
-            };
-          })
-          .filter((item) => item.nombre);
-
+        const data = await listarMarcas();
+        const marcasMapeadas: MarcaItem[] = (data as Marca[]).map((marca) => ({
+          id: marca.marcaid,
+          nombre: buildDisplayName(marca.marcaimgnombre, `Marca ${marca.marcaid}`),
+          imagen: getImagenMarca(marca.marcaimgnombrebucket),
+        }));
         setMarcas(marcasMapeadas);
       } catch (error) {
-        console.error("No se pudieron cargar las marcas del carrusel:", error);
+        console.error("No se pudieron cargar las marcas:", error);
         setMarcas([]);
       }
     };
-
     cargarMarcas();
   }, []);
+
+  // Reinicia la animación CSS cuando cambia la dirección
+  useEffect(() => {
+    const pista = pistaRef.current;
+    if (!pista) return;
+
+    // Forzar reflow para reiniciar la animación
+    pista.style.animation = "none";
+    void pista.offsetHeight; // trigger reflow
+    pista.style.animation = "";
+    pista.style.animationDirection = direccion;
+  }, [direccion]);
 
   const marcasLoop = useMemo(() => {
     if (marcas.length === 0) return [];
     return [...marcas, ...marcas];
   }, [marcas]);
-
-  const siguiente = () => {
-    setDireccion("normal");
-  };
-
-  const anterior = () => {
-    setDireccion("reverse");
-  };
 
   return (
     <section
@@ -103,20 +71,30 @@ export default function Seccion_1() {
       onMouseEnter={() => setPausado(true)}
       onMouseLeave={() => setPausado(false)}
     >
-      <button type="button" className={styles.flecha} onClick={anterior} aria-label="Anterior">
+      <button
+        type="button"
+        className={styles.flecha}
+        onClick={() => setDireccion("reverse")}
+        aria-label="Anterior"
+      >
         {"<"}
       </button>
 
       <div className={styles.carrusel}>
         {marcasLoop.length > 0 ? (
           <div
+            ref={pistaRef}
             className={`${styles.pista} ${pausado ? styles.pistaPausada : ""}`}
             style={{ animationDirection: direccion }}
           >
             {marcasLoop.map((marca, index) => (
               <article key={`${marca.id}-${index}`} className={styles.logoCard}>
                 {marca.imagen ? (
-                  <img src={marca.imagen} alt={marca.nombre} className={styles.logo} />
+                  <img
+                    src={marca.imagen}
+                    alt={marca.nombre}
+                    className={styles.logo}
+                  />
                 ) : (
                   <div className={styles.logoPlaceholder}>{marca.nombre}</div>
                 )}
@@ -128,7 +106,12 @@ export default function Seccion_1() {
         )}
       </div>
 
-      <button type="button" className={styles.flecha} onClick={siguiente} aria-label="Siguiente">
+      <button
+        type="button"
+        className={styles.flecha}
+        onClick={() => setDireccion("normal")}
+        aria-label="Siguiente"
+      >
         {">"}
       </button>
     </section>

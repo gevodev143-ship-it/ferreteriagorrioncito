@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "./seccion_2.module.css";
+import { icon } from "../../../../core/icons";
 
 import {
   listarCategorias,
@@ -79,7 +80,7 @@ export default function Seccion_2({
       </div>
 
       <div className={styles.searchBox}>
-        <span className={styles.searchIcon}>Q</span>
+        <p>{icon.iconLupa({ className: styles.modalSvg })}</p>
         <input
           type="text"
           placeholder={tabActiva === "categorias" ? "Buscar Categoria" : "Buscar Marca"}

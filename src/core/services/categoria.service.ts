@@ -39,19 +39,31 @@ export const listarCategoriasPaginacion = async (
 // ///////////////////////////////////////////////////////////////////////////////////////
 // ///////////////////////        listarCategorias       /////////////////////////////////
 // ///////////////////////////////////////////////////////////////////////////////////////
-export const listarCategorias = async () => {
-  const { data, error } = await supabase
-    .from("categoria")
-    .select(SELECT_CATEGORIA);
+export const listarCategorias = async (): Promise<Categoria[]> => {
+  const LIMITE = 1000;
+  const resultado: Categoria[] = [];
+  let desde = 0;
 
-  if (error) {
-    console.error("Error al listar categorías:", error);
-    return [];
+  while (true) {
+    const { data, error } = await supabase
+      .from("categoria")
+      .select(SELECT_CATEGORIA)
+      .order("ctgraid", { ascending: true })
+      .range(desde, desde + LIMITE - 1);
+
+    if (error) {
+      console.error("Error al listar categorías:", error);
+      break;
+    }
+
+    resultado.push(...(data as Categoria[]));
+
+    if (data.length < LIMITE) break; // ya no hay más
+    desde += LIMITE;
   }
 
-  return data;
+  return resultado;
 };
-
 // ///////////////////////////////////////////////////////////////////////////////////////
 // ////////////////////////        obtenerCategoriaPorId       ///////////////////////////
 // ///////////////////////////////////////////////////////////////////////////////////////

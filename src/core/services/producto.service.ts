@@ -289,7 +289,6 @@ export const listarProductosPorCategoria = async (
   const desde = (pagina - 1) * limite;
   const hasta = desde + limite - 1;
 
-  // 1️⃣ Buscar el ctgraid por nombre
   const { data: catData, error: catError } = await supabase
     .from("categoria")
     .select("ctgraid")
@@ -301,18 +300,44 @@ export const listarProductosPorCategoria = async (
     return [];
   }
 
-  // 2️⃣ Filtrar productos directamente por ctgraid
   const { data, error } = await supabase
     .from("producto")
-    .select(`
-      prdcid,
-      prdcimgnombre,
-      prdcimgnombrebucket,
-      prdcprecio,
-      ctgraid,
-      categoria ( ctgraid, ctgraimgnombre )
-    `)
-    .eq("ctgraid", catData.ctgraid)   // 👈 filtro directo, sin join condicional
+    .select(SELECT_PRODUCTO) // ✅ usa el SELECT completo con joins
+    .eq("ctgraid", catData.ctgraid)
+    .order("prdcid", { ascending: true })
+    .range(desde, hasta);
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data as Producto[];
+};
+
+export const listarProductosPorMarca = async (
+  marca: string,
+  pagina = 1,
+  limite = 100
+): Promise<Producto[]> => {
+  const desde = (pagina - 1) * limite;
+  const hasta = desde + limite - 1;
+
+  const { data: marcaData, error: marcaError } = await supabase
+    .from("marca")
+    .select("marcaid")
+    .eq("marcaimgnombre", marca)
+    .single();
+
+  if (marcaError || !marcaData) {
+    console.error("Marca no encontrada:", marcaError);
+    return [];
+  }
+
+  const { data, error } = await supabase
+    .from("producto")
+    .select(SELECT_PRODUCTO) // ✅ usa el SELECT completo con joins
+    .eq("marcaid", marcaData.marcaid)
     .order("prdcid", { ascending: true })
     .range(desde, hasta);
 

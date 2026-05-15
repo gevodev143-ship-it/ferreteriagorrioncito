@@ -39,19 +39,31 @@ export const listarMarcasPaginacion = async (
 // ///////////////////////////////////////////////////////////////////////////////////////
 // ///////////////////////        listarMarcas       /////////////////////////////////
 // ///////////////////////////////////////////////////////////////////////////////////////
-export const listarMarcas = async () => {
-  const { data, error } = await supabase
-    .from("marca")
-    .select(SELECT_MARCA);
+export const listarMarcas = async (): Promise<Marca[]> => {
+  const LIMITE = 1000;
+  const resultado: Marca[] = [];
+  let desde = 0;
 
-  if (error) {
-    console.error("Error al listar marcas:", error);
-    return [];
+  while (true) {
+    const { data, error } = await supabase
+      .from("marca")
+      .select(SELECT_MARCA)
+      .order("marcaid", { ascending: true })
+      .range(desde, desde + LIMITE - 1);
+
+    if (error) {
+      console.error("Error al listar marcas:", error);
+      break;
+    }
+
+    resultado.push(...(data as Marca[]));
+
+    if (data.length < LIMITE) break; // ya no hay más
+    desde += LIMITE;
   }
 
-  return data;
+  return resultado;
 };
-
 // ///////////////////////////////////////////////////////////////////////////////////////
 // /////////////////////////        obtenerMarcaPorId       //////////////////////////////
 // ///////////////////////////////////////////////////////////////////////////////////////

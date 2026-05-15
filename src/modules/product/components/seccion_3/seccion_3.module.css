@@ -127,14 +127,14 @@
 
 .gridProductos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 270px));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   justify-content: start;
-  gap: 18px;
+  gap: 10px;
   align-items: start;
 }
 
 .productoCard {
-  max-width: 270px;
+  max-width: 200px;
   background: #f8f4f4;
   border-radius: 18px;
   padding: 12px;

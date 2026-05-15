@@ -1,81 +1,121 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import style from "./NavBarSearch.module.css";
 import { icon } from "../../../../core/icons";
 
 import {
-  listarCategorias,
-  type Categoria,
-} from "../../../../core/services/categoria.service";
+  buscarProductosPorNombre,
+  type Producto,
+} from "../../../../core/services/producto.service";
 
-import {
-  listarMarcas,
-  type Marca,
-} from "../../../../core/services/marca.service";
+const normalizarNombre = (nombre: string | undefined | null, fallback: string) =>
+  nombre
+    ?.replace(/\.[^.]+$/, "")
+    ?.replace(/[_-]+/g, " ")
+    ?.trim()
+    ?.replace(/\b\w/g, (c) => c.toUpperCase()) ?? fallback;
 
 export const NavBarSearch = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   const [busquedaNavbar, setBusquedaNavbar] = useState(
     searchParams.get("q") ?? ""
   );
 
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
-  const [marcas, setMarcas] = useState<Marca[]>([]);
-
   useEffect(() => {
     setBusquedaNavbar(searchParams.get("q") ?? "");
   }, [searchParams]);
 
-  useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        const [cats, mks] = await Promise.all([
-          listarCategorias(),
-          listarMarcas(),
-        ]);
-
-        setCategorias(cats);
-        setMarcas(mks);
-      } catch (error) {
-        console.error("Error cargando búsqueda:", error);
-      }
-    };
-
-    cargarDatos();
-  }, []);
-
-  const manejarSubmitBusqueda = (event: FormEvent<HTMLFormElement>) => {
+  const manejarSubmitBusqueda = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    enviarBusqueda();
+    await enviarBusqueda();
   };
 
-  const enviarBusqueda = () => {
-    const query = busquedaNavbar.trim().toLowerCase();
+  const enviarBusqueda = async () => {
+    const query = busquedaNavbar.trim();
 
-    const categoria = categorias.find(
-      (c) => c.ctgraimgnombre?.toLowerCase() === query
-    );
-
-    const marca = marcas.find(
-      (m) => m.marcaimgnombre?.toLowerCase() === query
-    );
-
-    const params = new URLSearchParams();
-
-    if (categoria) {
-      params.set("categoria", categoria.ctgraimgnombre);
-    } else if (marca) {
-      params.set("marca", marca.marcaimgnombre);
-    } else if (query) {
-      params.set("q", query);
+    if (!query) {
+      navigate("/product");
+      return;
     }
 
-    const destino = query ? `/product?${params.toString()}` : "/product";
+    try {
+      const resultados: Producto[] = await buscarProductosPorNombre(query);
 
-    navigate(destino);
+      if (resultados.length > 0) {
+        // ── Encontró productos: armar params con q + categorías + marcas ──
+        const params = new URLSearchParams();
+        params.set("q", query);
+
+        const categoriasSet = new Set<string>();
+        const marcasSet = new Set<string>();
+
+        for (const producto of resultados) {
+          const cat = normalizarNombre(producto.categoria?.ctgraimgnombre, "");
+          const mar = normalizarNombre(producto.marca?.marcaimgnombre, "");
+          if (cat) categoriasSet.add(cat);
+          if (mar) marcasSet.add(mar);
+        }
+
+        if (categoriasSet.size > 0) params.set("categorias", [...categoriasSet].join(","));
+        if (marcasSet.size > 0) params.set("marcas", [...marcasSet].join(","));
+
+        navigate(`/product?${params.toString()}`);
+        return;
+      }
+
+      // ── Sin resultados como producto: buscar si coincide con alguna marca ──
+      const queryLower = query.toLowerCase();
+
+      // Buscar en marcas: reutilizamos una búsqueda amplia y filtramos por nombre de marca
+      const porMarca: Producto[] = await buscarProductosPorNombre(""); // traemos todos
+      // Nota: si buscarProductosPorNombre("") no devuelve todos, ajusta según tu service
+      // Alternativa limpia: usa un servicio dedicado listarProductos() que ya tienes en seccion_3
+
+      const marcasEncontradas = new Set<string>();
+      const categoriasDeMarcos = new Set<string>();
+
+      for (const producto of porMarca) {
+        const mar = normalizarNombre(producto.marca?.marcaimgnombre, "");
+        if (mar.toLowerCase().includes(queryLower)) {
+          marcasEncontradas.add(mar);
+          const cat = normalizarNombre(producto.categoria?.ctgraimgnombre, "");
+          if (cat) categoriasDeMarcos.add(cat);
+        }
+      }
+
+      if (marcasEncontradas.size > 0) {
+        const params = new URLSearchParams();
+        params.set("marcas", [...marcasEncontradas].join(","));
+        navigate(`/product?${params.toString()}`);
+        return;
+      }
+
+      // ── Sin coincidencia en marcas: buscar si coincide con alguna categoría ──
+      const categoriasEncontradas = new Set<string>();
+
+      for (const producto of porMarca) {
+        const cat = normalizarNombre(producto.categoria?.ctgraimgnombre, "");
+        if (cat.toLowerCase().includes(queryLower)) {
+          categoriasEncontradas.add(cat);
+        }
+      }
+
+      if (categoriasEncontradas.size > 0) {
+        const params = new URLSearchParams();
+        params.set("categorias", [...categoriasEncontradas].join(","));
+        navigate(`/product?${params.toString()}`);
+        return;
+      }
+
+      // ── Nada encontrado: navegar con q para que Seccion_3 muestre "sin resultados" ──
+      navigate(`/product?q=${encodeURIComponent(query)}`);
+
+    } catch (error) {
+      console.error("Error en búsqueda navbar:", error);
+      navigate(`/product?q=${encodeURIComponent(query)}`);
+    }
   };
 
   return (

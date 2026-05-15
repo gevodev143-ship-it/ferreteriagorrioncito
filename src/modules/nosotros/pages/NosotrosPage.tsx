@@ -4,6 +4,7 @@ import Seccion_3 from "../components/seccion_3/seccion_3";
 import Seccion_4 from "../components/seccion_4/seccion_4";
 
 export default function NosotrosPage() {
+  
   return (
     <div>
       <Seccion_1 />
