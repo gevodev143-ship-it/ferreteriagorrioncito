@@ -15,7 +15,7 @@
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1;
   font-weight: 800;
-  color: #2f3cc9;
+  color: #161D4B;
 }
 
 /* ── Slider ──────────────────────────────────────────── */
@@ -63,12 +63,13 @@
 
 /* ── Card ────────────────────────────────────────────── */
 .card {
-  border-radius: 18px;
-  background: linear-gradient(180deg, #efe9ea 0%, #ece3e4 100%);
+  border-radius: 28px;
+  background: white;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
   padding: 16px 18px 20px;
   animation: entradaProducto 0.45s ease;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  text-align: center;
 }
 
 .card:hover {
@@ -77,7 +78,6 @@
 }
 
 .imagenWrap {
-  border: 3px solid #c9c9c9;
   background: #ffffff;
   padding: 10px;
   display: flex;
@@ -112,7 +112,7 @@
 
 .cardTitulo {
   margin: 0 0 4px;
-  color: #4f4f4f;
+  color: #242424;
   font-size: 1.05rem;
   line-height: 1.15;
   font-weight: 800;
@@ -121,14 +121,14 @@
 
 .cardCategoria {
   margin: 0 0 2px;
-  color: #7a7a7a;
-  font-size: 0.95rem;
+  color: #818181;
+  font-size: 0.94rem;
   font-weight: 700;
 }
 
 .cardMarca {
   margin: 0 0 6px;
-  color: #243585;
+  color: #818181;
   font-size: 0.95rem;
   font-weight: 800;
 }
@@ -138,15 +138,14 @@
 .loQuieroButton {
   position: relative;
   overflow: hidden;
-
   display: flex;
   width: 100%;
   justify-content: center;
   align-items: center;
-  border: 1px solid rgb(228, 154, 57);
-  border-radius: 9px;
-  background: white;
-  color: #f56e00;
+  border: 1px solid rgb(247, 142, 5);
+  border-radius: 19px;
+  background: #f56e00;
+  color: white;
   font-size: 13px;
   font-weight: 800;
   padding: 10px 16px;
@@ -166,7 +165,7 @@
   width: 100%;
   height: 100%;
 
-  background: #f56e00;
+  background: #fa7609;
   transition: left 0.35s ease;
 
   z-index: -1;

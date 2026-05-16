@@ -206,7 +206,7 @@
     font-size: clamp(1.7rem, 4vw, 2.4rem);
     line-height: 1.05;
     font-weight: 800;
-    color: #2f3cc9;
+    color: #161D4B;
     text-align: center;
   }
 
@@ -361,7 +361,7 @@
     font-size: clamp(2rem, 4vw, 3rem);
     line-height: 1;
     font-weight: 800;
-    color: #2f3cc9;
+    color: #161D4B;
   }
 
   .descripcion {

@@ -64,7 +64,6 @@ const Seccion_3 = () => {
 
       {/* Encabezado */}
       <div className={style.encabezado}>
-        <span className={style.kicker}>Aliados comerciales</span>
         <h2 className={style.titulo}>Marcas</h2>
         <p className={style.descripcion}>
           Trabajamos con marcas reconocidas para ofrecer productos confiables en cada categoria.

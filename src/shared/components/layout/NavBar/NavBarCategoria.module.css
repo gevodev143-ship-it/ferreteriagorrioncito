@@ -72,7 +72,7 @@
 .panelTitulo {
   margin: 0;
   padding: 20px 20px 14px;
-  color: #1f2e7c;
+  color: #161D4B;
   font-family: Sora, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   font-size: 1.12rem;
@@ -227,7 +227,7 @@
 /* ─── Tarjeta de producto ────────────────────────────────────────────────── */
 .productoCard {
   max-width: 270px;
-  background: #f8f4f4;
+  background: white;
   border-radius: 18px;
   padding: 12px;
   box-shadow: 0 16px 24px rgba(53, 53, 53, 0.24);
@@ -242,7 +242,6 @@
 
 .productoImagenWrap {
   background: #ffffff;
-  border: 3px solid #d7d9e3;
   border-radius: 16px;
   padding: 10px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
@@ -302,10 +301,10 @@
   width: 100%;
   justify-content: center;
   align-items: center;
-  border: 1px solid rgb(228, 154, 57);
-  border-radius: 9px;
-  background: white;
-  color: #f56e00;
+  border: 1px solid rgb(247, 142, 5);
+  border-radius: 19px;
+  background: #f56e00;
+  color: white;
   font-size: 13px;
   font-weight: 800;
   padding: 10px 16px;
@@ -325,7 +324,7 @@
   width: 100%;
   height: 100%;
 
-  background: #f56e00;
+  background: #fa7609;
   transition: left 0.35s ease;
 
   z-index: -1;
