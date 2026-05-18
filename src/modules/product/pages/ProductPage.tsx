@@ -21,9 +21,10 @@ export default function ProductPage() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [categoriasSeleccionadas, setCategoriasSeleccionadas] = useState<string[]>([]);
   const [marcasSeleccionadas, setMarcasSeleccionadas] = useState<string[]>([]);
+  const [busquedaGeneral, setBusquedaGeneral] = useState("");
   const [productosVisibles, setProductosVisibles] = useState(INITIAL_VISIBLE);
 
-  const busquedaGeneral = searchParams.get("q")?.trim().toLowerCase() ?? "";
+  const queryUrl = searchParams.get("q")?.trim() ?? "";
   const categoriaDesdeUrl = searchParams.get("categoria")?.trim() ?? "";
   const marcaDesdeUrl = searchParams.get("marca")?.trim() ?? "";
 
@@ -34,33 +35,84 @@ export default function ProductPage() {
       .catch((err) => console.error("Error cargando productos:", err));
   }, []);
 
-  // Sincronizar filtros con la URL
+  // ── Extraer categorías y marcas únicas desde los productos ──
+  const categoriasDisponibles = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          productos.map((p) => normalizarNombre(p.categoria?.ctgraimgnombre, ""))
+        )
+      ).filter(Boolean),
+    [productos]
+  );
+
+  const marcasDisponibles = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          productos.map((p) => normalizarNombre(p.marca?.marcaimgnombre, ""))
+        )
+      ).filter(Boolean),
+    [productos]
+  );
+
+  // ── Sincronizar URL → filtros con lógica de prioridad ──
   useEffect(() => {
-    setCategoriasSeleccionadas(categoriaDesdeUrl ? [categoriaDesdeUrl] : []);
-    setMarcasSeleccionadas(marcaDesdeUrl ? [marcaDesdeUrl] : []);
-  }, [categoriaDesdeUrl, marcaDesdeUrl]);
+    // Si hay ?categoria= o ?marca= en la URL, úsalos directamente
+    if (categoriaDesdeUrl || marcaDesdeUrl) {
+      setCategoriasSeleccionadas(categoriaDesdeUrl ? [categoriaDesdeUrl] : []);
+      setMarcasSeleccionadas(marcaDesdeUrl ? [marcaDesdeUrl] : []);
+      setBusquedaGeneral("");
+      return;
+    }
+
+    // Si no hay ?q= tampoco, limpiar todo
+    if (!queryUrl) {
+      setCategoriasSeleccionadas([]);
+      setMarcasSeleccionadas([]);
+      setBusquedaGeneral("");
+      return;
+    }
+
+    // Si aún no cargaron los productos, esperar
+    if (productos.length === 0) return;
+
+    const queryLower = queryUrl.toLowerCase();
+
+    // 1️⃣ Prioridad 1: ¿coincide con alguna categoría?
+    const categoriasCoincidentes = categoriasDisponibles.filter((cat) =>
+      cat.toLowerCase().split(/\s+/).some((palabra) => palabra === queryLower)
+    );
+
+    if (categoriasCoincidentes.length > 0) {
+      setCategoriasSeleccionadas(categoriasCoincidentes);
+      setMarcasSeleccionadas([]);
+      setBusquedaGeneral("");
+      return;
+    }
+
+    // 2️⃣ Prioridad 2: ¿coincide con alguna marca?
+    const marcasCoincidentes = marcasDisponibles.filter((mar) =>
+      mar.toLowerCase().split(/\s+/).some((palabra) => palabra === queryLower)
+    );
+
+    if (marcasCoincidentes.length > 0) {
+      setMarcasSeleccionadas(marcasCoincidentes);
+      setCategoriasSeleccionadas([]);
+      setBusquedaGeneral("");
+      return;
+    }
+
+    // 3️⃣ Prioridad 3: buscar por nombre de producto
+    setCategoriasSeleccionadas([]);
+    setMarcasSeleccionadas([]);
+    setBusquedaGeneral(queryUrl);
+  }, [queryUrl, categoriaDesdeUrl, marcaDesdeUrl, productos, categoriasDisponibles, marcasDisponibles]);
 
   // Resetear paginación cuando cambian los filtros
   useEffect(() => {
     setProductosVisibles(INITIAL_VISIBLE);
   }, [busquedaGeneral, categoriasSeleccionadas, marcasSeleccionadas]);
-
-  const categorias = useMemo(() => {
-    const conteo = new Map<string, number>();
-    for (const p of productos) {
-      const nombre = normalizarNombre(p.categoria?.ctgraimgnombre, "Sin categoria");
-      conteo.set(nombre, (conteo.get(nombre) ?? 0) + 1);
-    }
-    return Array.from(conteo.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([nombre, total], index) => ({ id: index + 1, nombre, total }));
-  }, [productos]);
-
-  const marcas = useMemo(() => {
-    return Array.from(
-      new Set(productos.map((p) => normalizarNombre(p.marca?.marcaimgnombre, "Sin marca")))
-    ).sort((a, b) => a.localeCompare(b));
-  }, [productos]);
 
   const toggleCategoria = (cat: string) =>
     setCategoriasSeleccionadas((prev) =>

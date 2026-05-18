@@ -232,7 +232,7 @@ export default function Seccion_4() {
                             <span className={styles.itemPunto} aria-hidden="true" />
                             <span className={styles.itemNombre}>{item.nombre}</span>
                           </span>
-                          <span className={styles.itemMeta}>{item.total}</span>
+                          
                         </Link>
                       </li>
                     ))}

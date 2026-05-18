@@ -5,7 +5,7 @@ export default function Seccion_3() {
     <section className={styles.seccion}>
       <div className={styles.contenido}>
         <article className={styles.bloque}>
-          <h2 className={styles.titulo}>MISION</h2>
+          <h2 className={styles.titulo}>MISIÓN</h2>
           <p className={styles.texto}>
             Brindar seguridad a nuestros potenciales clientes y sus colaboradores
             a traves de la amplia gama de marcas y productos de calidad que
@@ -15,7 +15,7 @@ export default function Seccion_3() {
         </article>
 
         <article className={styles.bloque}>
-          <h2 className={styles.titulo}>VISION</h2>
+          <h2 className={styles.titulo}>VISIÓN</h2>
           <p className={styles.texto}>
             Ser una empresa reconocida y lider en el mercado en la distribucion y
             comercio de las mejores marcas de productos de seguridad personal y
