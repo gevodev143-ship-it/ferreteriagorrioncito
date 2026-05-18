@@ -1,7 +1,8 @@
 import styles from "./seccion_5.module.css";
 import { images } from "../../../../assets/img/index";
 
-import pdfHistoria from "../../../../assets/pdf/historia.pdf";
+import historia from "../../../../assets/pdf/HISTORIA.pdf";
+
 import { useEffect, useRef, useState } from "react";
 
 export default function Seccion_4() {
@@ -50,7 +51,7 @@ export default function Seccion_4() {
 
   {open && (
     <div className={styles.menu}>
-      <a href={pdfHistoria} download>
+      <a href={historia} download>
         Descargar PDF
       </a>
     </div>
