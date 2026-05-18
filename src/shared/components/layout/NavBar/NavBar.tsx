@@ -38,7 +38,7 @@ const leerCarrito = (): CartItem[] => {
 
 export default function NavBar() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
+  const scrollTop = () => window.scrollTo({ top: 0 });
   // ── Carrito ───────────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -62,14 +62,14 @@ export default function NavBar() {
   return (
     <div className={style.wrapper}>
       <header className={style.navbar}>
-        <NavBarLogo />
+        <NavBarLogo/>
         <NavBarSearch />
 
         <nav className={style.menu}>
-          <Link to="/nosotros" className={style.link}>
+          <Link to="/nosotros" className={style.link} onClick={scrollTop}>
             Nosotros
           </Link>
-          <Link to="/product" className={style.link}>
+          <Link to="/product" className={style.link} onClick={scrollTop}>
             Productos
           </Link>
           <NavBarCategoria />
